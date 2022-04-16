@@ -23,6 +23,7 @@ def inputData():
 # defining my intial variables
 H_0_1 = 70
 Omega_M_1 = 0.3
+Omega_L_1 = 0.7
 
 xdata, ydata, yerr = inputData()
 
@@ -34,6 +35,13 @@ print(xdata)
 print(ydata)
 print(yerr)
 
+def Distance_Modulus(H_0, Omega_M):
+    model = []
+    cosmo = FlatLambdaCDM(H_0, Omega_M)
+    model = cosmo.distmod(xdata).value
+    return model
+
+
 # Using the maximum likelihood to take account my error to get a best fit for the supernovea data
 def log_likelihood(theta, xdata, ydata, yerr):
     H_0, Omega_M = theta
@@ -43,7 +51,7 @@ def log_likelihood(theta, xdata, ydata, yerr):
     cosmo = FlatLambdaCDM(H_0, Omega_M)
     model = cosmo.distmod(xdata).value
     sigma2 = (yerr) ** 2
-    return -0.5 * np.sum(((ydata - model + 19.3) ** 2) / sigma2)
+    return -0.5 * np.sum(((ydata + 19.3 - model) ** 2) / sigma2)
 
 # Fitting of my data to find the parameters: Hubble Constant (H_0) and Omega_Matter (Omega_M)
 from scipy.optimize import minimize
@@ -51,12 +59,19 @@ from scipy.optimize import minimize
 nll = lambda *args: -log_likelihood(*args)
 initial = np.array([H_0_1, Omega_M_1])
 soln = minimize(nll, initial, args=(xdata, ydata, yerr), bounds=([60, 75], [0, 1]))
-H_0, Omega_M = soln.x
+H_0, Omega_M, = soln.x
 
 print("Maximum likelihood estimates:")
 print("H_0 = {0:.3f}".format(H_0))
 print("Omega_M = {0:.3f}".format(Omega_M))
 print("Omega_L = {0:.3f}".format(1 - Omega_M))
+
+plt.errorbar(xdata, ydata, yerr=yerr, fmt=".k", capsize=0)
+plt.plot(xdata, ydata, "k", alpha=0.3, lw=3, label="truth")
+plt.plot(xdata, Distance_Modulus(H_0, Omega_M), ":k", label="ML")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.show()
 
 def log_prior(theta):
     H_0, Omega_M = theta
@@ -84,7 +99,7 @@ sampler.run_mcmc(pos, 5000, progress=True);
 
 fig, axes = plt.subplots(3, figsize=(10, 7), sharex=True)
 samples = sampler.get_chain()
-labels = ["H_0", "Omega_M"]
+labels = ["H_0", "Omega_M, Omega_L"]
 for i in range(ndim):
     ax = axes[i]
     ax.plot(samples[:, :, i], "k", alpha=0.3)
