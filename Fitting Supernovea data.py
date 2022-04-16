@@ -71,8 +71,10 @@ print("Omega_L = {0:.3f}".format(1 - Omega_M))
 plt.errorbar(xdata, ydata, yerr=yerr, fmt=".k", capsize=0)
 plt.plot(xdata, ydata, "k", alpha=0.3, lw=3, label="truth")
 plt.plot(xdata, Distance_Modulus(H_0, Omega_M) - 19.3, ":k", label="ML")
-plt.xlabel("x")
-plt.ylabel("y")
+plt.xscale('log')
+plt.xlabel('redshift z')
+plt.ylabel('Distance Modulus')
+plt.title('Distance Modulus vs. zcmb')
 plt.show()
 
 def log_prior(theta):
