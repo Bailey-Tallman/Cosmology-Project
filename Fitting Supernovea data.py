@@ -35,6 +35,7 @@ print(xdata)
 print(ydata)
 print(yerr)
 
+# Distance Modulus Equation using Astropy.cosmology import FlatLambdaCDM
 def Distance_Modulus(H_0, Omega_M):
     model = []
     cosmo = FlatLambdaCDM(H_0, Omega_M)
@@ -66,6 +67,7 @@ print("H_0 = {0:.3f}".format(H_0))
 print("Omega_M = {0:.3f}".format(Omega_M))
 print("Omega_L = {0:.3f}".format(1 - Omega_M))
 
+# Graph for the fitted parameters over the data
 plt.errorbar(xdata, ydata, yerr=yerr, fmt=".k", capsize=0)
 plt.plot(xdata, ydata, "k", alpha=0.3, lw=3, label="truth")
 plt.plot(xdata, Distance_Modulus(H_0, Omega_M) - 19.3, ":k", label="ML")
